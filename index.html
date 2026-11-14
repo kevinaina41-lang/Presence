@@ -3,461 +3,410 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Présence — Inscription & Admin</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="robots" content="noindex, nofollow" />
+<title>Admin — AVE Entreprenariat</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
   body { background: #f4f6fb; color: #1a1a2e; min-height: 100vh; padding: 20px; }
-  .container { max-width: 1100px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,.06); }
-  h1 { font-size: 1.6rem; margin-bottom: 8px; }
-  h2 { font-size: 1.2rem; margin: 24px 0 12px; }
-  .subtitle { color: #666; margin-bottom: 24px; font-size: .95rem; }
-  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: .9rem; }
-  input { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; margin-bottom: 16px; transition: .2s; }
-  input:focus { border-color: #4f46e5; outline: none; }
-  button { cursor: pointer; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; padding: 12px 20px; transition: .2s; }
-  .btn-primary { background: #4f46e5; color: #fff; width: 100%; }
-  .btn-primary:hover { background: #4338ca; }
-  .btn-primary:disabled { background: #999; cursor: not-allowed; }
-  .btn-sm { padding: 8px 12px; font-size: .85rem; }
-  .btn-danger { background: #ef4444; color: #fff; }
-  .btn-danger:hover { background: #dc2626; }
-  .btn-success { background: #10b981; color: #fff; }
-  .btn-success:hover { background: #059669; }
-  .btn-ghost { background: #eef2ff; color: #4f46e5; }
-  .hidden { display: none !important; }
-  .msg { padding: 14px; border-radius: 10px; margin-bottom: 16px; font-size: .95rem; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,.06); margin-bottom: 20px; }
+  h1 { font-size: 1.4rem; } h2 { font-size: 1.1rem; }
+  .sub { color: #666; font-size: .85rem; margin-top: 4px; }
+
+  .login-box { max-width: 400px; margin: 80px auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,.1); }
+  .login-box h1 { margin-bottom: 6px; }
+  .login-box p { color: #666; font-size: .9rem; margin-bottom: 20px; }
+  .login-box label, .form-grid label { display: block; font-weight: 600; margin-bottom: 5px; font-size: .85rem; }
+  .login-box input, .form-grid input { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 10px; margin-bottom: 14px; font-size: 1rem; }
+  .login-box input:focus, .form-grid input:focus { border-color: #4f46e5; outline: none; }
+  .login-box button { width: 100%; padding: 12px; background: #4f46e5; color: #fff; font-size: 1rem; }
+
+  .topbar, .row-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .topbar { margin-bottom: 20px; } .row-head { margin-bottom: 12px; }
+  .btn-group, .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 10px 18px; font-size: .9rem; transition: .2s; }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  .btn-primary { background: #4f46e5; color: #fff; } .btn-primary:hover { background: #4338ca; }
+  .btn-ghost { background: #eef2ff; color: #4f46e5; } .btn-ghost:hover { background: #e0e7ff; }
+  .btn-warning { background: #f59e0b; color: #fff; } .btn-warning:hover { background: #d97706; }
+  .btn-danger { background: #ef4444; color: #fff; padding: 8px 14px; font-size: .82rem; } .btn-danger:hover { background: #dc2626; }
+  .btn-delete { background: #fff; color: #dc2626; border: 1.5px solid #fca5a5; padding: 7px 12px; font-size: .82rem; }
+  .btn-delete:hover { background: #fef2f2; border-color: #ef4444; }
+  .tag-abs { display: inline-block; padding: 8px 14px; border-radius: 10px; background: #fee2e2; color: #b91c1c; font-weight: 700; font-size: .82rem; }
+
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; margin: 14px 0 4px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: .9rem; vertical-align: middle; }
+  th { background: #f9fafb; font-weight: 700; font-size: .78rem; text-transform: uppercase; color: #666; }
+  tr:hover { background: #fafbff; }
+  .photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; }
+  .nom-cell.absent { color: #ef4444; font-weight: 700; }
+  .croix { display: block; color: #ef4444; font-size: 1.05rem; font-weight: 900; line-height: 1; margin-top: 2px; }
+
+  .toggle-box { display: flex; align-items: center; gap: 14px; padding: 16px; background: #f9fafb; border-radius: 12px; }
+  .switch { position: relative; width: 56px; height: 30px; background: #ccc; border-radius: 15px; cursor: pointer; transition: .2s; flex-shrink: 0; }
+  .switch.on { background: #10b981; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; transition: .2s; }
+  .switch.on::after { left: 29px; }
+
+  .msg { padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: .88rem; }
   .msg-success { background: #d1fae5; color: #065f46; }
   .msg-error { background: #fee2e2; color: #991b1b; }
-  .msg-info { background: #dbeafe; color: #1e40af; }
-  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: .92rem; }
-  th { background: #f9fafb; font-weight: 700; font-size: .82rem; text-transform: uppercase; color: #666; }
-  tr:hover { background: #fafbff; }
-  .badge { padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700; }
-  .badge-present { background: #d1fae5; color: #065f46; }
-  .badge-absent { background: #fee2e2; color: #991b1b; }
-  .badge-public { background: #dbeafe; color: #1e40af; }
-  .badge-admin { background: #fef3c7; color: #92400e; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .tab { padding: 10px 18px; border-radius: 10px; background: #fff; border: 1.5px solid #ddd; font-weight: 600; font-size: .9rem; }
-  .tab.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; }
-  .toggle { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 16px; }
-  .switch { position: relative; width: 52px; height: 28px; background: #ccc; border-radius: 14px; cursor: pointer; transition: .2s; }
-  .switch.on { background: #10b981; }
-  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: .2s; }
-  .switch.on::after { left: 27px; }
-  .login-box { max-width: 400px; margin: 80px auto; }
-  @media(max-width: 768px) { th, td { padding: 8px 6px; font-size: .8rem; } .photo { width: 32px; height: 32px; } }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<!-- ============ CONFIG SUPABASE ============ -->
 <script>
-  const SUPABASE_URL = "https://tzknkxkeqepssxmrzktc.supabase.co";     // ← REMPLACER
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6a25reGtlcWVwc3N4bXJ6a3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2NTcxMTQsImV4cCI6MjExMDIzMzExNH0.h9Ff1nG33F2VoDlHwZ85eW20sQTIEz7Zkvb7-68iGVU";                        // ← REMPLACER
-  const ADMIN_PASSWORD = "admin123";                            // ← REMPLACER (mot de passe admin)
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://tzknkxkeqepssxmrzktc.supabase.co";
+  // Clé "anon" : publique par conception. Elle ne protège rien seule, la sécurité vient des règles RLS (securite.sql).
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6a25reGtlcWVwc3N4bXJ6a3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2NTcxMTQsImV4cCI6MjExMDIzMzExNH0.h9Ff1nG33F2VoDlHwZ85eW20sQTIEz7Zkvb7-68iGVU";
+  // La session de connexion est gardée dans l'onglet seulement : fermer l'onglet = déconnexion.
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: window.sessionStorage } });
 </script>
 
 <div class="container">
 
-  <!-- ============================================= -->
-  <!-- ============ PAGE PUBLIQUE (INSCRIPTION) ===== -->
-  <!-- ============================================= -->
-  <div id="page-inscription" class="card hidden">
-    <h1>📋 Inscription</h1>
-    <p class="subtitle">Remplissez le formulaire ci-dessous.</p>
-
-    <div id="msg-inscription"></div>
-
-    <form id="form-inscription">
-      <label>Nom</label>
-      <input type="text" name="nom" required placeholder="Ex: RAKOTO" />
-
-      <label>Prénom(s)</label>
-      <input type="text" name="prenom" required placeholder="Ex: Jean Paul" />
-
-      <label>Numéro de téléphone</label>
-      <input type="tel" name="telephone" required pattern="0[0-9]{9}" placeholder="Ex: 0341234567" />
-
-      <label>NIE</label>
-      <input type="text" name="nie" required placeholder="Ex: SE123456" />
-
-      <label>Classe / Niveau</label>
-      <input type="text" name="classe" required placeholder="Ex: L1TC" />
-
-      <label>Photo (optionnelle)</label>
-      <input type="file" name="photo" accept="image/*" />
-
-      <button type="submit" class="btn-primary" id="btn-submit">Envoyer ✅</button>
-    </form>
-  </div>
-
-  <!-- Message si inscriptions fermées -->
-  <div id="page-fermee" class="card hidden" style="text-align:center;padding:60px 20px;">
-    <h1>🔒 Inscriptions fermées</h1>
-    <p class="subtitle">Les inscriptions ne sont plus ouvertes.</p>
-  </div>
-
-  <!-- ============================================= -->
-  <!-- ============ PAGE LOGIN ADMIN ================ -->
-  <!-- ============================================= -->
-  <div id="page-login" class="card login-box hidden">
-    <h1>🔐 Admin</h1>
-    <p class="subtitle">Entrez le mot de passe.</p>
+  <div id="page-login" class="login-box hidden">
+    <h1>🔐 Espace administrateur</h1>
+    <p>AVE Entreprenariat</p>
     <div id="msg-login"></div>
     <form id="form-login">
+      <label>Email</label>
+      <input type="email" name="email" autocomplete="username" required />
       <label>Mot de passe</label>
-      <input type="password" name="password" required />
-      <button type="submit" class="btn-primary">Se connecter</button>
+      <input type="password" name="password" autocomplete="current-password" required />
+      <button type="submit">Se connecter</button>
     </form>
   </div>
 
-  <!-- ============================================= -->
-  <!-- ============ DASHBOARD ADMIN ================= -->
-  <!-- ============================================= -->
   <div id="page-admin" class="hidden">
     <div class="topbar">
-      <h1>🎓 Tableau de bord</h1>
-      <button class="btn-ghost btn-sm" id="btn-logout">Déconnexion</button>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="eleves">👥 Élèves</button>
-      <button class="tab" data-tab="presences">✅ Présences</button>
-      <button class="tab" data-tab="parametres">⚙️ Paramètres</button>
-    </div>
-
-    <!-- Onglet Élèves -->
-    <div id="tab-eleves" class="card">
-      <h2>Liste des élèves</h2>
-      <button class="btn-primary btn-sm" id="btn-add-eleve" style="width:auto;margin-bottom:16px;">+ Ajouter un élève</button>
-
-      <form id="form-add-eleve" class="hidden" style="background:#f9fafb;padding:16px;border-radius:10px;margin-bottom:16px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <input type="text" name="nom" placeholder="Nom" required />
-          <input type="text" name="prenom" placeholder="Prénom(s)" required />
-          <input type="tel" name="telephone" placeholder="Téléphone (03...)" pattern="0[0-9]{9}" required />
-          <input type="text" name="nie" placeholder="NIE (SE...)" required />
-          <input type="text" name="classe" placeholder="Classe / Niveau (L1TC...)" required />
-        </div>
-        <button type="submit" class="btn-success btn-sm" style="margin-top:12px;">Enregistrer</button>
-        <button type="button" class="btn-ghost btn-sm" id="btn-cancel-add" style="margin-top:12px;">Annuler</button>
-      </form>
-
-      <div id="msg-eleves"></div>
-      <div style="overflow-x:auto;">
-        <table id="table-eleves">
-          <thead>
-            <tr>
-              <th>Photo</th><th>Nom</th><th>Prénom(s)</th><th>Téléphone</th>
-              <th>NIE</th><th>Classe</th><th>Source</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div>
+        <h1>🎓 Tableau de bord — AVE Entreprenariat</h1>
+        <div class="sub" id="seance-info"></div>
       </div>
+      <button class="btn-ghost" id="btn-logout">Déconnexion</button>
     </div>
 
-    <!-- Onglet Présences -->
-    <div id="tab-presences" class="card hidden">
-      <h2>Présences du jour (<span id="date-today"></span>)</h2>
-      <p class="subtitle">Par défaut, tout le monde est <b>présent</b>. Cliquez sur <b>Absent</b> pour ceux qui manquent.</p>
-      <div id="msg-presences"></div>
-      <div style="overflow-x:auto;">
-        <table id="table-presences">
-          <thead>
-            <tr>
-              <th>Photo</th><th>Nom complet</th><th>NIE</th><th>Classe</th><th>Statut</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Onglet Paramètres -->
-    <div id="tab-parametres" class="card hidden">
-      <h2>Paramètres</h2>
-      <div class="toggle">
+    <div class="card">
+      <h2>⚙️ Plateforme publique</h2>
+      <div class="toggle-box" style="margin-top:12px;">
         <div class="switch" id="switch-inscriptions"></div>
         <div>
           <b>Inscriptions publiques</b>
-          <div style="color:#666;font-size:.85rem;" id="statut-inscriptions">Chargement…</div>
+          <div class="sub" id="statut-inscriptions">Chargement…</div>
         </div>
       </div>
-      <div id="msg-parametres"></div>
+      <div id="msg-parametres" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card hidden" id="card-add">
+      <h2>➕ Ajouter un élève manuellement</h2>
+      <p class="sub">Pour les élèves inscrits hors plateforme. Le formulaire reste ouvert pour en ajouter plusieurs.</p>
+      <form id="form-add">
+        <div class="form-grid">
+          <div><label>Nom *</label><input name="nom" required /></div>
+          <div><label>Prénom *</label><input name="prenom" required /></div>
+          <div><label>Classe *</label><input name="classe" required /></div>
+          <div><label>NIE</label><input name="nie" /></div>
+          <div><label>Téléphone</label><input name="telephone" type="tel" /></div>
+        </div>
+        <div id="msg-add"></div>
+        <div class="btn-group">
+          <button type="submit" class="btn-primary">Enregistrer l'élève</button>
+          <button type="button" class="btn-ghost" id="btn-cancel-add">Fermer</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="row-head">
+        <h2>👥 Liste des inscrits (<span id="count-eleves">0</span>)</h2>
+        <div class="btn-group">
+          <button class="btn-primary" id="btn-toggle-add">➕ Ajouter un élève</button>
+          <button class="btn-warning" id="btn-export-pdf">📄 Exporter PDF</button>
+        </div>
+      </div>
+      <div id="msg-eleves"></div>
+      <div style="overflow-x:auto;">
+        <table id="table-eleves">
+          <thead><tr><th>Photo</th><th>Nom complet</th><th>Classe</th><th>NIE</th><th>Téléphone</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
-
 </div>
 
-<!-- ============================================= -->
-<!-- ============ LOGIQUE JAVASCRIPT ============== -->
-<!-- ============================================= -->
 <script>
-/* ---------- État ---------- */
-let isAdmin = false;
 let elevesCache = [];
+let absentSet = new Set();
+let seance = null;
 
-/* ---------- Navigation par hash ---------- */
-function showPage(id) {
-  document.querySelectorAll('.card, #page-admin').forEach(el => el.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-}
-
-function route() {
-  const hash = location.hash.replace('#', '');
-  if (hash === 'admin') {
-    if (isAdmin) { showPage('page-admin'); loadAdmin(); }
-    else showPage('page-login');
-  } else {
-    // Page publique
-    checkInscriptionsOuvertes();
-  }
-}
-window.addEventListener('hashchange', route);
-
-/* ---------- Utilitaires ---------- */
-function setMsg(id, text, type = 'info') {
-  const el = document.getElementById(id);
-  el.innerHTML = text ? `<div class="msg msg-${type}">${text}</div>` : '';
-}
+const $ = (id) => document.getElementById(id);
+function setMsg(id, text, type = 'info') { $(id).innerHTML = text ? `<div class="msg msg-${type}">${text}</div>` : ''; }
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function todayISO() { return new Date().toISOString().split('T')[0]; }
-
-/* ---------- Vérifier si inscriptions ouvertes ---------- */
-async function checkInscriptionsOuvertes() {
-  const { data, error } = await db.from('parametres').select('*').eq('id', 1).single();
-  if (error) { showPage('page-inscription'); return; }
-  if (data.inscriptions_ouvertes) showPage('page-inscription');
-  else showPage('page-fermee');
+function dateLongue() { return new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+function heure(d) { return new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h'); }
+function showPage(id) {
+  $('page-login').classList.toggle('hidden', id !== 'page-login');
+  $('page-admin').classList.toggle('hidden', id !== 'page-admin');
 }
 
-/* ---------- FORMULAIRE INSCRIPTION ---------- */
-document.getElementById('form-inscription').addEventListener('submit', async (e) => {
+/* ---------- Connexion / séance ----------
+   Chaque connexion ouvre une NOUVELLE séance : les absences repartent de zéro,
+   un élève absent la fois d'avant peut donc être marqué absent à nouveau. */
+async function demarrer() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return showPage('page-login');
+
+  const { data: ok } = await db.rpc('is_admin');
+  if (!ok) {
+    await db.auth.signOut();
+    sessionStorage.removeItem('seance');
+    showPage('page-login');
+    return setMsg('msg-login', '❌ Ce compte n\'a pas accès à l\'espace administrateur.', 'error');
+  }
+
+  try { seance = JSON.parse(sessionStorage.getItem('seance')); } catch { seance = null; }
+  if (!seance || !seance.id) {
+    const { data, error } = await db.from('seances').insert({}).select().single();
+    if (error) { showPage('page-login'); return setMsg('msg-login', 'Erreur : ' + error.message, 'error'); }
+    seance = data;
+    sessionStorage.setItem('seance', JSON.stringify(seance));
+  }
+
+  $('seance-info').textContent = `Séance ouverte à ${heure(seance.cree_le)}. Chaque nouvelle connexion ouvre une nouvelle séance.`;
+  showPage('page-admin');
+  Promise.all([loadEleves(), loadParametres()]);
+}
+
+$('form-login').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true; btn.textContent = 'Envoi en cours…';
-  setMsg('msg-inscription', '');
-
-  const fd = new FormData(e.target);
-  let photo_url = null;
-
-  // Upload photo si fournie
-  const photoFile = fd.get('photo');
-  if (photoFile && photoFile.size > 0) {
-    const fileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-    const { error: upErr } = await db.storage.from('photos').upload(fileName, photoFile);
-    if (!upErr) {
-      const { data: pub } = db.storage.from('photos').getPublicUrl(fileName);
-      photo_url = pub.publicUrl;
-    }
-  }
-
-  const payload = {
-    nom: fd.get('nom').trim().toUpperCase(),
-    prenom: fd.get('prenom').trim(),
-    telephone: fd.get('telephone').trim(),
-    nie: fd.get('nie').trim().toUpperCase(),
-    classe: fd.get('classe').trim().toUpperCase(),
-    photo_url,
-    source: 'public'
-  };
-
-  const { error } = await db.from('eleves').insert(payload);
-
-  btn.disabled = false; btn.textContent = 'Envoyer ✅';
-
-  if (error) {
-    if (error.code === '23505') setMsg('msg-inscription', '❌ Ce NIE est déjà enregistré.', 'error');
-    else setMsg('msg-inscription', '❌ Erreur : ' + error.message, 'error');
-  } else {
-    e.target.reset();
-    setMsg('msg-inscription', '✅ Inscription réussie ! Merci.', 'success');
-  }
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  sessionStorage.removeItem('seance');            // nouvelle connexion = nouvelle séance
+  const { error } = await db.auth.signInWithPassword({ email: e.target.email.value.trim(), password: e.target.password.value });
+  btn.disabled = false;
+  if (error) return setMsg('msg-login', '❌ Email ou mot de passe incorrect.', 'error');
+  setMsg('msg-login', '');
+  e.target.reset();
+  demarrer();
 });
 
-/* ---------- LOGIN ADMIN ---------- */
-document.getElementById('form-login').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const pwd = e.target.password.value;
-  if (pwd === ADMIN_PASSWORD) {
-    isAdmin = true;
-    sessionStorage.setItem('isAdmin', '1');
-    setMsg('msg-login', '');
-    showPage('page-admin');
-    loadAdmin();
-  } else {
-    setMsg('msg-login', '❌ Mot de passe incorrect.', 'error');
-  }
-});
-
-document.getElementById('btn-logout').addEventListener('click', () => {
-  isAdmin = false;
-  sessionStorage.removeItem('isAdmin');
-  location.hash = '';
+$('btn-logout').addEventListener('click', async () => {
+  sessionStorage.removeItem('seance');
+  await db.auth.signOut();
   location.reload();
 });
+db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') showPage('page-login'); });
 
-/* ---------- ONGLETS ADMIN ---------- */
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('#tab-eleves, #tab-presences, #tab-parametres').forEach(t => t.classList.add('hidden'));
-    document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
-    if (tab.dataset.tab === 'presences') loadPresences();
-    if (tab.dataset.tab === 'parametres') loadParametres();
-  });
-});
-
-/* ---------- CHARGEMENT ADMIN ---------- */
-async function loadAdmin() {
-  await loadEleves();
-  await loadParametres();
-  document.getElementById('date-today').textContent = todayISO();
-}
-
-/* ---------- ÉLÈVES ---------- */
+/* ---------- Élèves ---------- */
 async function loadEleves() {
-  const { data, error } = await db.from('eleves').select('*').eq('actif', true).order('nom');
-  if (error) { setMsg('msg-eleves', 'Erreur : ' + error.message, 'error'); return; }
-  elevesCache = data;
-  const tbody = document.querySelector('#table-eleves tbody');
-  tbody.innerHTML = data.length === 0
-    ? `<tr><td colspan="8" style="text-align:center;color:#999;padding:20px;">Aucun élève</td></tr>`
-    : data.map(e => `
-      <tr>
-        <td>${e.photo_url ? `<img src="${e.photo_url}" class="photo" />` : `<div class="photo"></div>`}</td>
-        <td><b>${escapeHtml(e.nom)}</b></td>
-        <td>${escapeHtml(e.prenom)}</td>
-        <td>${escapeHtml(e.telephone)}</td>
-        <td>${escapeHtml(e.nie)}</td>
-        <td>${escapeHtml(e.classe)}</td>
-        <td><span class="badge badge-${e.source}">${e.source}</span></td>
-        <td class="actions">
-          <button class="btn-danger btn-sm" onclick="deleteEleve('${e.id}')">Supprimer</button>
-        </td>
-      </tr>`).join('');
-}
+  const { data: eleves, error } = await db.from('eleves').select('*').eq('actif', true).order('nom');
+  const { data: presences } = await db.from('presences').select('eleve_id').eq('seance_id', seance.id).eq('statut', 'absent');
+  if (error) return setMsg('msg-eleves', 'Erreur : ' + error.message, 'error');
 
-window.deleteEleve = async (id) => {
-  if (!confirm('Supprimer cet élève ?')) return;
-  const { error } = await db.from('eleves').update({ actif: false }).eq('id', id);
-  if (error) setMsg('msg-eleves', 'Erreur : ' + error.message, 'error');
-  else { setMsg('msg-eleves', '✅ Élève supprimé.', 'success'); loadEleves(); }
-};
+  elevesCache = eleves || [];
+  absentSet = new Set((presences || []).map(p => String(p.eleve_id)));
+  $('count-eleves').textContent = elevesCache.length;
 
-/* ---------- AJOUT MANUEL (ADMIN) ---------- */
-document.getElementById('btn-add-eleve').addEventListener('click', () => {
-  document.getElementById('form-add-eleve').classList.toggle('hidden');
-});
-document.getElementById('btn-cancel-add').addEventListener('click', () => {
-  document.getElementById('form-add-eleve').classList.add('hidden');
-  document.getElementById('form-add-eleve').reset();
-});
-document.getElementById('form-add-eleve').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = {
-    nom: fd.get('nom').trim().toUpperCase(),
-    prenom: fd.get('prenom').trim(),
-    telephone: fd.get('telephone').trim(),
-    nie: fd.get('nie').trim().toUpperCase(),
-    classe: fd.get('classe').trim().toUpperCase(),
-    source: 'admin'
-  };
-  const { error } = await db.from('eleves').insert(payload);
-  if (error) setMsg('msg-eleves', 'Erreur : ' + error.message, 'error');
-  else {
-    setMsg('msg-eleves', '✅ Élève ajouté.', 'success');
-    e.target.reset();
-    document.getElementById('form-add-eleve').classList.add('hidden');
-    loadEleves();
-  }
-});
-
-/* ---------- PRÉSENCES ---------- */
-async function loadPresences() {
-  document.getElementById('date-today').textContent = todayISO();
-  const today = todayISO();
-
-  const { data: eleves } = await db.from('eleves').select('*').eq('actif', true).order('nom');
-  const { data: presences } = await db.from('presences').select('*').eq('date_cours', today);
-
-  const map = {};
-  (presences || []).forEach(p => { map[p.eleve_id] = p; });
-
-  const tbody = document.querySelector('#table-presences tbody');
-  tbody.innerHTML = (eleves || []).length === 0
-    ? `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Aucun élève</td></tr>`
-    : eleves.map(e => {
-        const p = map[e.id];
-        const statut = p ? p.statut : null;
-        const badge = statut
-          ? `<span class="badge badge-${statut}">${statut}</span>`
-          : `<span class="badge" style="background:#f3f4f6;color:#666;">non marqué</span>`;
+  document.querySelector('#table-eleves tbody').innerHTML = elevesCache.length === 0
+    ? `<tr><td colspan="6" style="text-align:center;color:#999;padding:24px;">Aucun élève inscrit</td></tr>`
+    : elevesCache.map(e => {
+        const absent = absentSet.has(String(e.id));
+        const id = escapeHtml(e.id);
         return `
           <tr>
-            <td>${e.photo_url ? `<img src="${e.photo_url}" class="photo" />` : `<div class="photo"></div>`}</td>
-            <td><b>${escapeHtml(e.nom)}</b> ${escapeHtml(e.prenom)}</td>
-            <td>${escapeHtml(e.nie)}</td>
-            <td>${escapeHtml(e.classe)}</td>
-            <td>${badge}</td>
-            <td class="actions">
-              <button class="btn-success btn-sm" onclick="setStatut('${e.id}','present')">Présent</button>
-              <button class="btn-danger btn-sm" onclick="setStatut('${e.id}','absent')">Absent</button>
+            <td>${e.photo_url ? `<img src="${escapeHtml(e.photo_url)}" class="photo" />` : `<div class="photo"></div>`}</td>
+            <td class="nom-cell ${absent ? 'absent' : ''}">
+              ${escapeHtml(e.nom)} ${escapeHtml(e.prenom)}
+              ${absent ? '<span class="croix">✗</span>' : ''}
             </td>
+            <td>${escapeHtml(e.classe)}</td>
+            <td>${escapeHtml(e.nie)}</td>
+            <td>${escapeHtml(e.telephone)}</td>
+            <td><div class="actions">
+              ${absent ? '<span class="tag-abs">✗ Absent</span>' : `<button class="btn-danger" data-act="abs" data-id="${id}">Absent</button>`}
+              <button class="btn-delete" data-act="del" data-id="${id}">🗑 Supprimer</button>
+            </div></td>
           </tr>`;
       }).join('');
 }
 
-window.setStatut = async (eleve_id, statut) => {
-  const today = todayISO();
-  const { error } = await db.from('presences').upsert(
-    { eleve_id, date_cours: today, statut },
-    { onConflict: 'eleve_id,date_cours' }
-  );
-  if (error) setMsg('msg-presences', 'Erreur : ' + error.message, 'error');
-  else { setMsg('msg-presences', `✅ Statut "${statut}" enregistré.`, 'success'); loadPresences(); }
-};
+document.querySelector('#table-eleves tbody').addEventListener('click', (ev) => {
+  const b = ev.target.closest('button[data-act]');
+  if (!b) return;
+  b.disabled = true;
+  (b.dataset.act === 'abs' ? marquerAbsent : supprimerEleve)(b.dataset.id);
+});
 
-/* ---------- PARAMÈTRES ---------- */
+async function marquerAbsent(id) {
+  const { error } = await db.from('presences').insert({ eleve_id: id, seance_id: seance.id, date_cours: todayISO(), statut: 'absent' });
+  if (error && error.code !== '23505') { setMsg('msg-eleves', 'Erreur : ' + error.message, 'error'); return loadEleves(); }
+  setMsg('msg-eleves', '✅ Absence enregistrée pour cette séance.', 'success');
+  loadEleves();
+}
+
+async function supprimerEleve(id) {
+  const e = elevesCache.find(x => String(x.id) === String(id));
+  if (!e) return;
+  if (!confirm(`Supprimer définitivement ${e.nom} ${e.prenom} ?\n\nSes présences et absences seront aussi supprimées. Cette action est irréversible.`)) return loadEleves();
+
+  const r1 = await db.from('presences').delete().eq('eleve_id', id);
+  if (r1.error) return setMsg('msg-eleves', 'Erreur : ' + r1.error.message, 'error');
+  const r2 = await db.from('eleves').delete().eq('id', id).select();
+  if (r2.error) return setMsg('msg-eleves', 'Erreur : ' + r2.error.message, 'error');
+  if (!r2.data || r2.data.length === 0) return setMsg('msg-eleves', '❌ Suppression refusée : vérifiez que ce compte est bien administrateur (securite.sql).', 'error');
+  setMsg('msg-eleves', `✅ ${escapeHtml(e.nom)} ${escapeHtml(e.prenom)} a été supprimé(e).`, 'success');
+  loadEleves();
+}
+
+/* ---------- Ajout manuel ---------- */
+const cardAdd = $('card-add'), formAdd = $('form-add');
+$('btn-toggle-add').addEventListener('click', () => {
+  cardAdd.classList.toggle('hidden');
+  if (!cardAdd.classList.contains('hidden')) { cardAdd.scrollIntoView({ behavior: 'smooth' }); formAdd.nom.focus(); }
+});
+$('btn-cancel-add').addEventListener('click', () => { cardAdd.classList.add('hidden'); setMsg('msg-add', ''); });
+
+formAdd.addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, btn = f.querySelector('button[type=submit]');
+  const row = {
+    nom: f.nom.value.trim(), prenom: f.prenom.value.trim(), classe: f.classe.value.trim(),
+    nie: f.nie.value.trim() || null, telephone: f.telephone.value.trim() || null, actif: true
+  };
+  if (!row.nom || !row.prenom || !row.classe) return setMsg('msg-add', 'Nom, prénom et classe sont obligatoires.', 'error');
+  btn.disabled = true;
+  const { data, error } = await db.from('eleves').insert([row]).select();
+  btn.disabled = false;
+  if (error) return setMsg('msg-add', error.code === '23505' ? '❌ Cet élève existe déjà (NIE en double).' : 'Erreur : ' + error.message, 'error');
+  if (!data || !data.length) return setMsg('msg-add', '❌ Ajout refusé : vérifiez que ce compte est bien administrateur (securite.sql).', 'error');
+  setMsg('msg-add', `✅ ${escapeHtml(row.nom)} ${escapeHtml(row.prenom)} ajouté(e). Vous pouvez en ajouter un autre.`, 'success');
+  f.reset(); f.nom.focus();
+  loadEleves();
+});
+
+/* ---------- Inscriptions publiques ---------- */
 async function loadParametres() {
   const { data } = await db.from('parametres').select('*').eq('id', 1).single();
   if (!data) return;
-  const sw = document.getElementById('switch-inscriptions');
-  const label = document.getElementById('statut-inscriptions');
-  if (data.inscriptions_ouvertes) {
-    sw.classList.add('on');
-    label.textContent = '🟢 Ouvertes — les élèves peuvent s\'inscrire';
-  } else {
-    sw.classList.remove('on');
-    label.textContent = '🔴 Fermées — page publique bloquée';
-  }
+  $('switch-inscriptions').classList.toggle('on', !!data.inscriptions_ouvertes);
+  $('statut-inscriptions').textContent = data.inscriptions_ouvertes
+    ? '🟢 Ouverte — les élèves peuvent s\'inscrire' : '🔴 Fermée — page publique bloquée';
 }
-
-document.getElementById('switch-inscriptions').addEventListener('click', async () => {
-  const sw = document.getElementById('switch-inscriptions');
-  const newVal = !sw.classList.contains('on');
+$('switch-inscriptions').addEventListener('click', async () => {
+  const newVal = !$('switch-inscriptions').classList.contains('on');
   const { error } = await db.from('parametres').update({ inscriptions_ouvertes: newVal }).eq('id', 1);
-  if (error) setMsg('msg-parametres', 'Erreur : ' + error.message, 'error');
-  else { setMsg('msg-parametres', '✅ Paramètre mis à jour.', 'success'); loadParametres(); }
+  if (error) return setMsg('msg-parametres', 'Erreur : ' + error.message, 'error');
+  setMsg('msg-parametres', '✅ Paramètre mis à jour.', 'success');
+  loadParametres();
 });
 
-/* ---------- INIT ---------- */
-if (sessionStorage.getItem('isAdmin') === '1') isAdmin = true;
-route();
+/* ---------- Export PDF ---------- */
+$('btn-export-pdf').addEventListener('click', () => {
+  if (elevesCache.length === 0) return alert('Aucun élève à exporter.');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 14;
+  const INK = [31, 41, 55], MUTED = [107, 114, 128], HAIR = [229, 231, 235], OK = [15, 118, 110], KO = [190, 18, 60];
+
+  const total = elevesCache.length;
+  const nbAbs = elevesCache.filter(e => absentSet.has(String(e.id))).length;
+  const nbPres = total - nbAbs;
+  const s = (n) => (n > 1 ? 's' : '');
+
+  // En-tête : de la typographie, pas de bandeau
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...OK);
+  doc.text('AVE Entreprenariat', M, 20);
+  doc.setFontSize(26); doc.setTextColor(...INK);
+  doc.text('Fiche de présence', M, 31);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5); doc.setTextColor(...MUTED);
+  doc.text(dateLongue() + ', séance ouverte à ' + heure(seance.cree_le), M, 39);
+
+  doc.setFontSize(12); doc.setTextColor(...INK);
+  doc.text(`${nbPres} élève${s(nbPres)} présent${s(nbPres)} sur ${total}` + (nbAbs ? `, ${nbAbs} absent${s(nbAbs)}.` : ', aucun absent.'), M, 49);
+  doc.setDrawColor(...INK); doc.setLineWidth(0.6); doc.line(M, 55, W - M, 55);
+
+  // Tableau : lignes fines, beaucoup d'air, statut en couleur avec un point
+  doc.autoTable({
+    startY: 61,
+    margin: { top: 20, bottom: 24, left: M, right: M },
+    head: [['N°', 'Élève', 'Classe', 'NIE', 'Téléphone', 'Statut']],
+    body: elevesCache.map((e, i) => [
+      i + 1,
+      `${e.nom || ''} ${e.prenom || ''}`.trim(),
+      e.classe || '', e.nie || '', e.telephone || '',
+      absentSet.has(String(e.id)) ? 'Absent' : 'Présent'
+    ]),
+    theme: 'plain',
+    styles: { fontSize: 9.5, cellPadding: { top: 4.2, bottom: 4.2, left: 2, right: 2 }, textColor: INK, lineColor: HAIR, lineWidth: { bottom: 0.2 }, valign: 'middle' },
+    headStyles: { fontSize: 8.5, fontStyle: 'bold', textColor: MUTED, lineColor: INK, lineWidth: { bottom: 0.5 } },
+    columnStyles: {
+      0: { cellWidth: 9, textColor: MUTED },
+      1: { cellWidth: 58, fontStyle: 'bold' },
+      2: { cellWidth: 24 },
+      3: { cellWidth: 32 },
+      4: { cellWidth: 33 },
+      5: { cellWidth: 26, cellPadding: { top: 4.2, bottom: 4.2, left: 7, right: 2 } }
+    },
+    didParseCell: (d) => {
+      if (d.section !== 'body') return;
+      if (d.row.raw[5] === 'Absent') d.cell.styles.fillColor = [255, 247, 247];
+      if (d.column.index === 5) {
+        d.cell.styles.fontStyle = 'bold';
+        d.cell.styles.textColor = d.row.raw[5] === 'Absent' ? KO : OK;
+      }
+    },
+    didDrawCell: (d) => {
+      if (d.section === 'body' && d.column.index === 5) {
+        doc.setFillColor(...(d.row.raw[5] === 'Absent' ? KO : OK));
+        doc.circle(d.cell.x + 3.2, d.cell.y + d.cell.height / 2, 1.1, 'F');
+      }
+    },
+    didDrawPage: (d) => {
+      if (d.pageNumber > 1) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+        doc.text('AVE Entreprenariat - Fiche de présence', M, 12);
+      }
+    }
+  });
+
+  // Signature
+  let y = doc.lastAutoTable.finalY + 16;
+  if (y > H - 48) { doc.addPage(); y = 30; }
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...MUTED);
+  doc.text('Signature du responsable', W - M - 64, y);
+  doc.setDrawColor(...MUTED); doc.setLineWidth(0.3);
+  doc.line(W - M - 64, y + 16, W - M, y + 16);
+
+  // Pied de page (numérotation juste sur toutes les pages)
+  const pages = doc.internal.getNumberOfPages();
+  const genere = new Date();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...HAIR); doc.setLineWidth(0.3);
+    doc.line(M, H - 15, W - M, H - 15);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+    doc.text('Généré le ' + genere.toLocaleDateString('fr-FR') + ' à ' + heure(genere), M, H - 9.5);
+    doc.text('Page ' + i + ' sur ' + pages, W - M, H - 9.5, { align: 'right' });
+  }
+
+  doc.save(`presence_AVE_${todayISO()}_${heure(seance.cree_le)}.pdf`);
+});
+
+demarrer();
 </script>
 </body>
 </html>
